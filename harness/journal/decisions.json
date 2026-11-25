@@ -1,0 +1,26 @@
+[
+  {
+    "ticket": "T-090",
+    "conflict": "No existing HarnessError subclass fits 'missing template' / 'missing variable' for the prompt renderer.",
+    "resolution": "Added PromptError(HarnessError) to core/errors.py.",
+    "reasoning": "Guidelines §3 requires specific typed exceptions; existing subclasses don't fit this concern. Additive, reversible, low-cost decision."
+  },
+  {
+    "ticket": "T-200",
+    "conflict": "T-140 implemented ClaudeCodeAdapter.review() as a synchronous method (matching its own acceptance criteria); T-200 requires run_review_gate to be 'async' and 'await adapter.review(...)' so v2 can asyncio.gather() it.",
+    "resolution": "Keep ClaudeCodeAdapter.review() synchronous as already shipped; run_review_gate (async) calls it via asyncio.to_thread(adapter.review, ...), which is itself awaitable and gatherable.",
+    "reasoning": "asyncio.to_thread is the standard idiom for awaiting a blocking call without retrofitting T-140's already-tested, ticket-compliant synchronous adapter. Satisfies T-200's async/await/gather requirements without reopening T-140."
+  },
+  {
+    "ticket": "T-210",
+    "conflict": "The ticket schema has no field for which test files cover a ticket, so run_review_gate's test_paths cannot be reliably extracted from freeform ticket markdown.",
+    "resolution": "Stage 3 scopes the automated test check to the whole suite (test_paths=[]) for every ticket.",
+    "reasoning": "Running the full suite is conservative and correctness-preserving (also catches regressions in earlier tickets), avoiding a brittle per-ticket extraction against an unspecified schema field."
+  },
+  {
+    "ticket": "T-220",
+    "conflict": "ClaudeCodeAdapter computes its own cost_usd from claude -p's reported cost, a different accounting path than BudgetGuard's rate-table token-based estimation.",
+    "resolution": "Orchestrator wires BudgetGuard around the text adapters only; Stage 3 spend is tracked via AgentResult/ReviewResult fields but not additionally routed through BudgetGuard in this ticket.",
+    "reasoning": "Double-accounting two different cost models for the same spend would be incorrect. Unifying them is a future budget.py-level concern. The text-adapter path is sufficient to demonstrate the pre-emptive-halt acceptance criterion for v0."
+  }
+]

@@ -1,0 +1,122 @@
+[
+  {
+    "ticket": "T-010",
+    "summary": "Project scaffolding: pyproject.toml, src/harness package skeleton, tests layout, CI workflow.",
+    "deviations": []
+  },
+  {
+    "ticket": "T-020",
+    "summary": "Core primitives: Clock/IdGen protocols with real + deterministic implementations, HarnessError hierarchy.",
+    "deviations": []
+  },
+  {
+    "ticket": "T-030",
+    "summary": "Pydantic v2 config model mirroring concept §4 + YAML loader raising ConfigError on malformed/unknown/out-of-policy config.",
+    "deviations": []
+  },
+  {
+    "ticket": "T-040",
+    "summary": "ProjectFolder canonical paths + typed read/write + DeclaredIOGuard enforcing per-stage input/output confinement.",
+    "deviations": []
+  },
+  {
+    "ticket": "T-050",
+    "summary": "run.log JSON-lines + DECISIONS/PROGRESS markdown+JSON mirrors kept in sync + resume_state from progress.json.",
+    "deviations": []
+  },
+  {
+    "ticket": "T-060",
+    "summary": "Pure BudgetGuard: cost estimation from rate table, accumulation, warn-once, pre-emptive BudgetExceeded.",
+    "deviations": []
+  },
+  {
+    "ticket": "T-070",
+    "summary": "freeze_spec snapshots concept+guidelines into hashed spec/.lock/<version>/; read_frozen verifies hash; latest_version/is_stale detect invalidation.",
+    "deviations": []
+  },
+  {
+    "ticket": "T-080",
+    "summary": "TicketNode + deterministic Kahn's-algorithm topological_order; DagCycleError on cycles; empty DAG handled.",
+    "deviations": []
+  },
+  {
+    "ticket": "T-090",
+    "summary": "render_prompt() template loader with project-override support + 8 first-draft default templates.",
+    "deviations": ["Added PromptError(HarnessError) to core/errors.py; see DECISIONS.md."]
+  },
+  {
+    "ticket": "T-100",
+    "summary": "TextStageAdapter protocol + GenerationResult/TokenUsage + TextAdapterContract suite + FakeTextAdapter (passes the contract).",
+    "deviations": []
+  },
+  {
+    "ticket": "T-110",
+    "summary": "AnthropicTextAdapter wrapping an injected Messages-API client; passes T-100 contract via fake client; gated live smoke test.",
+    "deviations": []
+  },
+  {
+    "ticket": "T-120",
+    "summary": "Sandbox: confine() file-confinement guard + build_docker_command()/run() for container execution; Docker-gated smoke test.",
+    "deviations": []
+  },
+  {
+    "ticket": "T-130",
+    "summary": "CodingAgentAdapter protocol + AgentResult + CodingAgentContract suite + FakeCodingAgent (scripted writes via sandbox.confine).",
+    "deviations": []
+  },
+  {
+    "ticket": "T-140",
+    "summary": "ClaudeCodeAdapter.run()/review() over an injected process_runner; passes T-130 contract; dedicated review() fresh-session/read-only/verdict tests; gated smoke tests.",
+    "deviations": ["project_root added as a construction-time field to supply review()'s cwd, since the ticket's review() signature has no workdir parameter."]
+  },
+  {
+    "ticket": "T-150",
+    "summary": "apply_gate() with injected IO for approve/edit/reject + auto_approve + phase_boundary_should_stop().",
+    "deviations": []
+  },
+  {
+    "ticket": "T-160",
+    "summary": "Stage Protocol (inputs/outputs/run->StageResult) + declared_io_for() wiring stages into the T-040 guard.",
+    "deviations": []
+  },
+  {
+    "ticket": "T-170",
+    "summary": "ConceptStage: bounded brainstorm/self-review loops, readiness checklist, phasing extraction, declared-IO; pure logic test-first, full stage driven by FakeTextAdapter.",
+    "deviations": ["run() ignores the single rendered_prompt arg, rendering its own multi-step prompt sequence internally.", "Stage.inputs/outputs widened to read-only properties in base.py for property-based implementations."]
+  },
+  {
+    "ticket": "T-180",
+    "summary": "GuidelinesStage: concept-only input, generate guidelines, consolidation check with concept-wins decision logging, conditional concept revision.",
+    "deviations": []
+  },
+  {
+    "ticket": "T-190",
+    "summary": "TicketsStage: parse '## TICKET: NNN-slug' response, validate DAG via dag.py, filter by active phase, read frozen spec by version, write tickets + zip.",
+    "deviations": ["Dynamically-named per-ticket files written via folder.write_text + manual path-containment check rather than the static DeclaredIOGuard, since filenames are model-chosen."]
+  },
+  {
+    "ticket": "T-200",
+    "summary": "run_review_gate(): automated checks gate the reviewer call; async via asyncio.to_thread wrapping the sync ClaudeCodeAdapter.review(); gatherable.",
+    "deviations": ["asyncio.to_thread wraps T-140's synchronous review(); see DECISIONS.md."]
+  },
+  {
+    "ticket": "T-210",
+    "summary": "ImplementStage: build-order execution, per-ticket retry+escalation via run_review_gate, crash-and-resume via resume_state, final acceptance pass.",
+    "deviations": ["Full-suite test scoping per DECISIONS.md (T-210); phase-stop satisfied structurally via T-190's phase-scoped ticket files; sandbox typed as concrete Sandbox class."]
+  },
+  {
+    "ticket": "T-220",
+    "summary": "Orchestrator: concept->guidelines->freeze->tickets->implement, idempotent skip-on-exists, BudgetGuard-wrapped text adapters, per-stage gates, phase-boundary stop.",
+    "deviations": ["BudgetGuard wraps text adapters only (DECISIONS.md). ImplementStage extended with a __final_acceptance__ progress marker for whole-pipeline idempotency."]
+  },
+  {
+    "ticket": "T-230",
+    "summary": "typer CLI: run/status/gate commands wired to build_orchestrator()/journal/gates.apply_gate(); tested via CliRunner with a stubbed orchestrator.",
+    "deviations": []
+  },
+  {
+    "ticket": "T-240",
+    "summary": "Capstone e2e test: full pipeline green with fakes, crash-and-resume, budget halt, gate paths (reject/approve/auto_approve), phase-stop.",
+    "deviations": []
+  }
+]
